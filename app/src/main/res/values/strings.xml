@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Black Screen</string>
+    <string name="tagline">Black out the screen; video keeps playing.</string>
+    <string name="setup_title">First, two permissions</string>
+    <string name="perm_overlay_title">1. Display over other apps</string>
+    <string name="perm_overlay_why">Needed to lay the black cover on top of YouTube or any other app.</string>
+    <string name="perm_notif_title">2. Notifications</string>
+    <string name="perm_notif_why">Shows the Unlock and Black out buttons in your notification shade.</string>
+    <string name="allow">Allow</string>
+    <string name="start_title">Black out</string>
+    <string name="blackout_button">Black out in 3 seconds</string>
+    <string name="counting_down">Blacking out in %1$d…</string>
+    <string name="blackout_button_help">Tap, then go back to your video. Easiest of all: use the Black Screen tile in Quick Settings while the video is playing.</string>
+    <string name="go_back_toast">Go back to your video now</string>
+    <string name="start_failed">Could not start. Please try the Quick Settings tile.</string>
+    <string name="add_tile">Add the Quick Settings tile</string>
+    <string name="tile_added">Tile is in Quick Settings</string>
+    <string name="tile_manual">Pull down Quick Settings, tap the pencil (edit), and drag in “Black Screen”.</string>
+    <string name="howto_title">How to use</string>
+    <string name="howto_body">• Start your video, pull down Quick Settings and tap Black Screen. Or tap Black out in the notification.\n• The screen goes black and ignores touches. The video and sound keep going.\n• To unlock: tap the same spot 4 times quickly. Or pull down the notification shade and tap Unlock (or the tile).\n• Touch the screen once to see a faint reminder.</string>
+    <string name="settings_title">Settings</string>
+    <string name="pocket_title">Pocket sensor</string>
+    <string name="pocket_desc">Turn the display fully off while the phone is in a pocket or face down. The video keeps playing.</string>
+    <string name="shortcut_title">Black out button in notifications</string>
+    <string name="shortcut_desc">Keeps a small silent notification so you can black out with one tap.</string>
+    <string name="limits_title">Good to know</string>
+    <string name="limits_body">Volume and power buttons still work. On some phones, swipes from the very edge of the screen (Back, Home, notification shade) can still get through. The power button turns the screen off as usual, which may pause some videos.</string>
+    <string name="footer">Free forever · No ads · No login · No internet</string>
+    <string name="overlay_hint">Tap here 4 times quickly to unlock</string>
+    <string name="tile_label">Black Screen</string>
+    <string name="tile_on">On</string>
+    <string name="tile_off">Off</string>
+    <string name="channel_name">Black Screen</string>
+    <string name="notif_idle_title">Black Screen is ready</string>
+    <string name="notif_idle_text">Tap Black out to cover the screen. Your video keeps playing.</string>
+    <string name="notif_active_title">Screen is blacked out</string>
+    <string name="notif_active_text">Tap the same spot 4 times quickly, or tap Unlock.</string>
+    <string name="action_blackout">Black out</string>
+    <string name="action_unlock">Unlock</string>
+</resources>
