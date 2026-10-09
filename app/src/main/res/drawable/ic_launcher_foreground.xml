@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Safe zone is the central 66dp circle. Phone outline + crescent moon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M42,27h24a5,5 0,0 1,5 5v44a5,5 0,0 1,-5 5H42a5,5 0,0 1,-5 -5V32a5,5 0,0 1,5 -5zM41.5,32.5v43h25v-43z" />
+    <path
+        android:fillColor="#FF5B8DEF"
+        android:pathData="M56.5,43a10,10 0,1 0,6.5 16.5a9.5,9.5 0,0 1,-6.5 -16.5z" />
+</vector>

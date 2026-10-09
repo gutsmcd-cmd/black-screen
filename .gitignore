@@ -1,0 +1,16 @@
+.gradle/
+build/
+app/build/
+local.properties
+*.apk
+*.aab
+*.jks
+*.keystore
+keystore/
+keystore.properties
+KEYSTORE-README.txt
+gradle/wrapper/gradle-wrapper.jar
+*.png
+.idea/
+*.iml
+*.bak
