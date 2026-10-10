@@ -8,7 +8,8 @@ import java.util.Locale
 object Prefs {
     private const val FILE = "settings"
     private const val KEY_LANG = "lang"
-    private const val KEY_POCKET = "pocket_sensor"
+    // New key in 1.0.2 so everyone starts with it OFF (1.0.1 defaulted to on).
+    private const val KEY_POCKET = "pocket_sensor_v2"
     private const val KEY_SHORTCUT = "notif_shortcut"
     private const val KEY_OVERLAY_ASKED = "overlay_asked"
 
@@ -20,8 +21,12 @@ object Prefs {
     fun lang(c: Context): String = sp(c).getString(KEY_LANG, LANG_EN) ?: LANG_EN
     fun setLang(c: Context, v: String) = sp(c).edit().putString(KEY_LANG, v).apply()
 
-    /** Turn the display fully off while the proximity sensor is covered (pocket / face down). */
-    fun pocketSensor(c: Context): Boolean = sp(c).getBoolean(KEY_POCKET, true)
+    /**
+     * Turn the display fully off while the proximity sensor is covered (pocket / face down).
+     * Off by default: with the panel off Android delivers no touches, and on some phones the
+     * sensor reads "near" all the time, so the 4-tap unlock would need the power button first.
+     */
+    fun pocketSensor(c: Context): Boolean = sp(c).getBoolean(KEY_POCKET, false)
     fun setPocketSensor(c: Context, v: Boolean) = sp(c).edit().putBoolean(KEY_POCKET, v).apply()
 
     /** Keep a small notification with a "Black out" button while idle. */

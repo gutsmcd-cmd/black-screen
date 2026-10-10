@@ -3,42 +3,50 @@ package io.github.gutsmcd.blackscreen
 import kotlin.math.hypot
 
 /**
- * Unlock gesture: [requiredTaps] short, single-finger taps on roughly the same spot,
- * all within [windowMs]. Pocket fabric tends to give long presses, drags or several
- * contact points at once, none of which count, so this is hard to trigger by accident
- * but easy on purpose.
+ * Unlock gesture: [requiredTaps] short, single-finger taps anywhere on the screen,
+ * in quick succession. Forgiving on purpose (real fingers wobble and land in different
+ * places), yet pocket fabric still rarely triggers it: long presses, drags and
+ * multi-finger contacts reset the count.
+ *
+ * - each tap: finger down for at most [maxTapMs] and moved at most [slopPx]
+ * - gap between one tap's lift and the next touch: at most [maxGapMs]
+ * - the whole sequence (first touch to last lift): at most [windowMs]
  */
 class UnlockDetector(
     private val requiredTaps: Int = 4,
-    private val windowMs: Long = 1500L,
-    private val maxTapMs: Long = 300L,
-    private val radiusPx: Float = 150f,
-    private val slopPx: Float = 40f,
+    private val maxTapMs: Long = 400L,
+    private val maxGapMs: Long = 600L,
+    private val windowMs: Long = 2500L,
+    private val slopPx: Float = 144f, // ~48dp on a typical phone; pass the real value from dp
 ) {
-    private val tapTimes = ArrayList<Long>()
-    private var anchorX = 0f
-    private var anchorY = 0f
+    private var count = 0
+    private var firstDown = -1L
+    private var lastUp = -1L
     private var downTime = -1L
     private var downX = 0f
     private var downY = 0f
     private var invalid = false
 
+    /** Taps counted so far in the current sequence (for the on-screen dots). */
+    val taps: Int get() = count
+
     fun reset() {
-        tapTimes.clear(); downTime = -1L; invalid = false
+        count = 0; firstDown = -1L; lastUp = -1L; downTime = -1L; invalid = false
     }
 
     fun onDown(x: Float, y: Float, t: Long) {
+        if (count > 0 && (t - lastUp > maxGapMs || t - firstDown > windowMs)) count = 0
         downTime = t; downX = x; downY = y; invalid = false
     }
 
     /** A second finger touched: this contact is not a clean tap. */
     fun onExtraPointer() {
         invalid = true
-        tapTimes.clear()
+        count = 0
     }
 
     fun onMove(x: Float, y: Float) {
-        if (hypot(x - downX, y - downY) > slopPx) invalid = true
+        if (downTime >= 0 && hypot(x - downX, y - downY) > slopPx) invalid = true
     }
 
     /** @return true when the unlock gesture is complete. */
@@ -46,26 +54,28 @@ class UnlockDetector(
         val start = downTime
         downTime = -1L
         if (start < 0 || invalid || t - start > maxTapMs || hypot(x - downX, y - downY) > slopPx) {
-            tapTimes.clear()
+            count = 0 // long press, drag or multi-touch: start over
             return false
         }
-        // Drop taps that are too old, or start over if this tap is far from the first one.
-        while (tapTimes.isNotEmpty() && t - tapTimes.first() > windowMs) tapTimes.removeAt(0)
-        if (tapTimes.isEmpty()) {
-            anchorX = x; anchorY = y
-        } else if (hypot(x - anchorX, y - anchorY) > radiusPx) {
-            tapTimes.clear(); anchorX = x; anchorY = y
-        }
-        tapTimes.add(t)
-        if (tapTimes.size >= requiredTaps) {
-            tapTimes.clear()
+        if (count > 0 && (start - lastUp > maxGapMs || t - firstDown > windowMs)) count = 0
+        if (count == 0) firstDown = start
+        count++
+        lastUp = t
+        if (count >= requiredTaps) {
+            reset()
             return true
         }
         return false
     }
 
+    /** Drops a sequence that has gone stale; returns the remaining tap count. */
+    fun expire(now: Long): Int {
+        if (count > 0 && downTime < 0 && now - lastUp > maxGapMs) count = 0
+        return count
+    }
+
     fun onCancel() {
         downTime = -1L
-        tapTimes.clear()
+        count = 0
     }
 }
