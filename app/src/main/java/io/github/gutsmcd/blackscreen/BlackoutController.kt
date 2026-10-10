@@ -5,10 +5,12 @@ import android.content.ComponentName
 import android.content.Context
 import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.os.SystemClock
 import android.provider.Settings
 import android.service.quicksettings.TileService
 import android.util.Log
@@ -19,6 +21,7 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 
 /**
@@ -29,11 +32,21 @@ import android.widget.TextView
 @SuppressLint("StaticFieldLeak")
 object BlackoutController {
     private const val TAG = "BlackScreen"
-    private const val HINT_MS = 2000L
+    private const val HINT_MS = 2500L
+    private const val DOT_RESET_MS = 650L
+    private const val TAPS = 4
+    /** Backlight while idle: lowest the window can ask for. Pixels stay pure black. */
+    private const val DIM_BRIGHTNESS = 0.01f
+    /** Briefly raised while the hint is showing, so the hint and dots are readable on LCDs too. */
+    private const val HINT_BRIGHTNESS = 0.12f
     private const val WAKELOCK_TIMEOUT_MS = 12L * 60 * 60 * 1000 // safety cap: 12 h
 
     private val main = Handler(Looper.getMainLooper())
     private var root: FrameLayout? = null
+    private var hint: View? = null
+    private var dots: List<View> = emptyList()
+    private var detector: UnlockDetector? = null
+    private var hintBright = false
     private var proximityLock: PowerManager.WakeLock? = null
     private val listeners = mutableSetOf<() -> Unit>()
 
@@ -64,8 +77,10 @@ object BlackoutController {
         }
         root = view
         hideSystemBars(view)
+        // Off by default: while the proximity wake lock turns the panel off, Android delivers
+        // no touches at all, so the 4-tap unlock can't work until the power button is pressed.
         if (Prefs.pocketSensor(app)) acquireProximity(app)
-        showHint(view)
+        showHint()
         notifyChanged(app)
         return true
     }
@@ -74,6 +89,9 @@ object BlackoutController {
         val app = context.applicationContext
         val view = root ?: return
         root = null
+        main.removeCallbacks(hideHint)
+        main.removeCallbacks(resetDots)
+        hint = null; dots = emptyList(); detector = null; hintBright = false
         releaseProximity()
         try {
             app.getSystemService(WindowManager::class.java)?.removeViewImmediate(view)
@@ -91,7 +109,7 @@ object BlackoutController {
         BlackoutService.refresh(app)
     }
 
-    private fun layoutParams(): WindowManager.LayoutParams {
+    private fun layoutParams(brightness: Float = DIM_BRIGHTNESS): WindowManager.LayoutParams {
         @Suppress("DEPRECATION")
         val flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
@@ -106,7 +124,7 @@ object BlackoutController {
             PixelFormat.OPAQUE,
         )
         lp.gravity = Gravity.TOP or Gravity.START
-        lp.screenBrightness = 0.01f // lowest backlight while the cover is up
+        lp.screenBrightness = brightness
         lp.buttonBrightness = 0f
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
@@ -133,31 +151,70 @@ object BlackoutController {
         } catch (_: Exception) { }
     }
 
-    private val hideHint = Runnable { (root?.getChildAt(0) as? TextView)?.visibility = View.INVISIBLE }
+    private val hideHint = Runnable {
+        hint?.visibility = View.INVISIBLE
+        renderDots(0)
+        root?.let { setBright(it, false) }
+    }
 
-    private fun showHint(view: FrameLayout) {
-        val hint = view.getChildAt(0) as? TextView ?: return
-        hint.visibility = View.VISIBLE
+    private val resetDots = Runnable {
+        val d = detector ?: return@Runnable
+        renderDots(d.expire(SystemClock.uptimeMillis()))
+    }
+
+    private fun showHint() {
+        val view = root ?: return
+        hint?.visibility = View.VISIBLE
+        setBright(view, true)
         main.removeCallbacks(hideHint)
         main.postDelayed(hideHint, HINT_MS)
+    }
+
+    /** Raise the backlight a little while the hint shows; back to minimum afterwards. */
+    private fun setBright(view: View, bright: Boolean) {
+        if (hintBright == bright) return
+        hintBright = bright
+        try {
+            view.context.getSystemService(WindowManager::class.java)
+                ?.updateViewLayout(view, layoutParams(if (bright) HINT_BRIGHTNESS else DIM_BRIGHTNESS))
+        } catch (e: Exception) {
+            Log.w(TAG, "brightness update failed", e)
+        }
+    }
+
+    private fun renderDots(n: Int) {
+        dots.forEachIndexed { i, v ->
+            (v.background as? GradientDrawable)?.setColor(if (i < n) DOT_ON else DOT_OFF)
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun buildView(app: Context): FrameLayout {
         val loc = Prefs.localized(app)
-        val detector = UnlockDetector(radiusPx = dp(app, 60f), slopPx = dp(app, 16f))
+        val det = UnlockDetector(requiredTaps = TAPS, slopPx = dp(app, 48f))
+        detector = det
         val frame = object : FrameLayout(app) {
             override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
                 when (ev.actionMasked) {
                     MotionEvent.ACTION_DOWN -> {
-                        showHint(this)
-                        detector.onDown(ev.rawX, ev.rawY, ev.eventTime)
+                        det.onDown(ev.rawX, ev.rawY, ev.eventTime)
+                        renderDots(det.taps)
+                        main.removeCallbacks(resetDots)
+                        showHint()
                     }
-                    MotionEvent.ACTION_POINTER_DOWN -> detector.onExtraPointer()
-                    MotionEvent.ACTION_MOVE -> detector.onMove(ev.rawX, ev.rawY)
-                    MotionEvent.ACTION_UP ->
-                        if (detector.onUp(ev.rawX, ev.rawY, ev.eventTime)) main.post { hide(app) }
-                    MotionEvent.ACTION_CANCEL -> detector.onCancel()
+                    MotionEvent.ACTION_POINTER_DOWN -> { det.onExtraPointer(); renderDots(0) }
+                    MotionEvent.ACTION_MOVE -> det.onMove(ev.rawX, ev.rawY)
+                    MotionEvent.ACTION_UP -> {
+                        if (det.onUp(ev.rawX, ev.rawY, ev.eventTime)) {
+                            renderDots(TAPS)
+                            main.post { hide(app) }
+                        } else {
+                            renderDots(det.taps)
+                            main.removeCallbacks(resetDots)
+                            main.postDelayed(resetDots, DOT_RESET_MS)
+                        }
+                    }
+                    MotionEvent.ACTION_CANCEL -> { det.onCancel(); renderDots(0) }
                 }
                 return true // swallow every touch
             }
@@ -165,27 +222,54 @@ object BlackoutController {
         frame.setBackgroundColor(Color.BLACK)
         frame.isHapticFeedbackEnabled = false
         frame.isSoundEffectsEnabled = false
-        val hint = TextView(app).apply {
-            text = loc.getString(R.string.overlay_hint)
-            setTextColor(Color.rgb(0x3A, 0x3A, 0x3A))
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
-            gravity = Gravity.CENTER
+        frame.keepScreenOn = true
+
+        val box = LinearLayout(app).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
             visibility = View.INVISIBLE
         }
+        box.addView(TextView(app).apply {
+            text = loc.getString(R.string.overlay_hint)
+            setTextColor(HINT_COLOR)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            gravity = Gravity.CENTER
+        })
+        val row = LinearLayout(app).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            setPadding(0, dp(app, 14f).toInt(), 0, 0)
+        }
+        val size = dp(app, 12f).toInt()
+        val gap = dp(app, 9f).toInt()
+        val list = ArrayList<View>()
+        repeat(TAPS) {
+            val dot = View(app).apply {
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(DOT_OFF)
+                }
+            }
+            row.addView(dot, LinearLayout.LayoutParams(size, size).apply { setMargins(gap, 0, gap, 0) })
+            list += dot
+        }
+        box.addView(row)
         frame.addView(
-            hint,
+            box,
             FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER,
             ),
         )
+        hint = box
+        dots = list
         return frame
     }
 
     @SuppressLint("WakelockTimeout")
     private fun acquireProximity(app: Context) {
-        if (!proximitySupported(app)) return
+        if (proximityLock?.isHeld == true || !proximitySupported(app)) return
         try {
             val pm = app.getSystemService(PowerManager::class.java) ?: return
             val lock = pm.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "BlackScreen:pocket")
@@ -203,6 +287,10 @@ object BlackoutController {
         } catch (_: Exception) { }
         proximityLock = null
     }
+
+    private val HINT_COLOR = Color.rgb(0x5A, 0x5A, 0x5A)
+    private val DOT_OFF = Color.rgb(0x22, 0x22, 0x22)
+    private val DOT_ON = Color.rgb(0x80, 0x80, 0x80)
 
     private fun dp(c: Context, v: Float) =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v, c.resources.displayMetrics)

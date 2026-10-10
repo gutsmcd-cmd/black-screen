@@ -22,16 +22,16 @@
     <string name="tile_added">Tile is in Quick Settings</string>
     <string name="tile_manual">Pull down Quick Settings, tap the pencil (edit), and drag in “Black Screen”.</string>
     <string name="howto_title">How to use</string>
-    <string name="howto_body">• Start your video, pull down Quick Settings and tap Black Screen. Or tap Black out in the notification.\n• The screen goes black and ignores touches. The video and sound keep going.\n• To unlock: tap the same spot 4 times quickly. Or pull down the notification shade and tap Unlock (or the tile).\n• Touch the screen once to see a faint reminder.</string>
+    <string name="howto_body">• Start your video, pull down Quick Settings and tap Black Screen. Or tap Black out in the notification.\n• The screen goes black and ignores touches. The video and sound keep going.\n• To unlock: tap the screen 4 times quickly, anywhere. Faint dots show each tap counting. Or pull down the notification shade and tap Unlock (or the tile).\n• Touch the screen once to see a faint reminder.</string>
     <string name="settings_title">Settings</string>
-    <string name="pocket_title">Pocket sensor</string>
-    <string name="pocket_desc">Turn the display fully off while the phone is in a pocket or face down. The video keeps playing.</string>
+    <string name="pocket_title">Pocket sensor (off by default)</string>
+    <string name="pocket_desc">Turns the display fully off while the phone is in a pocket or face down. The video keeps playing. On some phones the screen then stays off and ignores taps, so you may need to press the power button before the 4 taps work.</string>
     <string name="shortcut_title">Black out button in notifications</string>
     <string name="shortcut_desc">Keeps a small silent notification so you can black out with one tap.</string>
     <string name="limits_title">Good to know</string>
     <string name="limits_body">Volume and power buttons still work. On some phones, swipes from the very edge of the screen (Back, Home, notification shade) can still get through. The power button turns the screen off as usual, which may pause some videos.</string>
     <string name="footer">Free forever · No ads · No login · No internet</string>
-    <string name="overlay_hint">Tap here 4 times quickly to unlock</string>
+    <string name="overlay_hint">Tap 4 times quickly to unlock</string>
     <string name="tile_label">Black Screen</string>
     <string name="tile_on">On</string>
     <string name="tile_off">Off</string>
@@ -39,7 +39,7 @@
     <string name="notif_idle_title">Black Screen is ready</string>
     <string name="notif_idle_text">Tap Black out to cover the screen. Your video keeps playing.</string>
     <string name="notif_active_title">Screen is blacked out</string>
-    <string name="notif_active_text">Tap the same spot 4 times quickly, or tap Unlock.</string>
+    <string name="notif_active_text">Tap the screen 4 times quickly, or tap Unlock.</string>
     <string name="action_blackout">Black out</string>
     <string name="action_unlock">Unlock</string>
 </resources>

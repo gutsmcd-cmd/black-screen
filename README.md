@@ -34,19 +34,24 @@ English and 日本語 (switch inside the app).
 - **Start:** play your video, pull down Quick Settings and tap the **Black Screen** tile.
   Or tap **Black out** in the notification, or use the in-app
   "Black out in 3 seconds" button and switch back to your video.
-- **Unlock:** tap the **same spot 4 times quickly**. Or pull down the notification
-  shade and tap **Unlock** (or tap the tile again).
-- Touch the black screen once and a faint reminder appears for 2 seconds.
+- **Unlock:** tap the screen **4 times quickly, anywhere**. Faint dots under the reminder
+  light up as each tap counts. Or pull down the notification shade and tap **Unlock**
+  (or tap the tile again).
+- Touch the black screen once and a faint reminder appears for a couple of seconds.
 
 ### Why "4 quick taps"?
 Old apps used a double-tap or a long-press, which a pocket easily triggers. Fabric pressing
-on glass mostly makes long presses, drags and several contacts at once; none of those count.
-Only 4 short, single-finger taps within about 1.5 seconds and close to each other unlock it.
+on glass mostly makes long presses, drags and several contacts at once; those reset the count.
+4 short single-finger taps unlock it: each press under 0.4 s, pauses under 0.6 s, all within
+about 2.5 s, anywhere on the screen.
 
-### Pocket sensor (on by default)
-While the cover is up and the proximity sensor is covered (pocket, face down), the app asks
-Android to switch the display fully off, the same trick "Black Screen of Life" uses. The video
-keeps playing; the cover is still there when the display comes back on.
+### Pocket sensor (off by default)
+When switched on in Settings: while the cover is up and the proximity sensor is covered
+(pocket, face down), the app asks Android to switch the display fully off. The video keeps
+playing. **Caveat:** while the display is off, Android delivers no touches at all, and on some
+phones (especially with under-display sensors) the sensor reads "near" even when uncovered.
+Then the 4 taps do nothing until you press the power button. That is why it is off by default
+since 1.0.2.
 
 ## Honest limits
 
@@ -62,7 +67,8 @@ keeps playing; the cover is still there when the display comes back on.
 ## How it works
 
 - `BlackoutController` adds a `TYPE_APPLICATION_OVERLAY` window (full screen, cutout area
-  included, `FLAG_KEEP_SCREEN_ON`, lowest window brightness) that swallows every touch.
+  included, `FLAG_KEEP_SCREEN_ON`, lowest window brightness, raised slightly while the hint shows)
+  that swallows every touch.
 - `BlackoutService` is a `specialUse` foreground service that keeps the app alive while the
   cover is up and shows the Unlock / Black out notification.
 - `BlackoutTileService` is the Quick Settings tile. The tile and notification start an
@@ -93,6 +99,10 @@ Without that file `assembleRelease` produces an unsigned APK; `assembleDebug` al
 
 ## Changelog
 
+- **1.0.2** – Fix: 4-tap unlock did nothing until the power button was pressed. Cause: the
+  Pocket sensor (then on by default) held a proximity wake lock that switched the display off,
+  and an off display receives no touches. Pocket sensor is now off by default (with a warning),
+  taps count anywhere on screen with more relaxed timing, and faint dots show each tap.
 - **1.0.1** – First-run screen explains Android 13+ "restricted settings" (greyed-out
   "Display over other apps" switch for sideloaded apps) with an **Open App info** button.
 - **1.0.0** – First release.

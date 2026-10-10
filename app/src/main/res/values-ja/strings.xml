@@ -22,16 +22,16 @@
     <string name="tile_added">タイルを追加しました</string>
     <string name="tile_manual">クイック設定を開き、鉛筆（編集）を押して「ブラック画面」をドラッグしてください。</string>
     <string name="howto_title">使い方</string>
-    <string name="howto_body">• 動画を再生し、クイック設定を下ろして「ブラック画面」を押します。通知の「黒くする」でもOK。\n• 画面が真っ黒になり、タッチは効きません。動画と音はそのまま続きます。\n• 解除：同じ場所をすばやく4回タップ。または通知欄を下ろして「解除」（またはタイル）を押します。\n• 画面に一度触れると、うっすら案内が出ます。</string>
+    <string name="howto_body">• 動画を再生し、クイック設定を下ろして「ブラック画面」を押します。通知の「黒くする」でもOK。\n• 画面が真っ黒になり、タッチは効きません。動画と音はそのまま続きます。\n• 解除：画面のどこでもすばやく4回タップ。タップするたびに、うっすら点が増えます。または通知欄を下ろして「解除」（またはタイル）を押します。\n• 画面に一度触れると、うっすら案内が出ます。</string>
     <string name="settings_title">設定</string>
-    <string name="pocket_title">ポケットセンサー</string>
-    <string name="pocket_desc">ポケットの中や画面を下に伏せている間は、画面を完全に消します。動画は続きます。</string>
+    <string name="pocket_title">ポケットセンサー（初期設定はオフ）</string>
+    <string name="pocket_desc">ポケットの中や画面を下に伏せている間は、画面を完全に消します。動画は続きます。機種によっては画面が消えたままタップが効かなくなるため、4回タップの前に電源ボタンを押す必要があります。</string>
     <string name="shortcut_title">通知に「黒くする」ボタン</string>
     <string name="shortcut_desc">小さな無音の通知を残して、ワンタップで黒くできます。</string>
     <string name="limits_title">ご注意</string>
     <string name="limits_body">音量ボタンと電源ボタンは使えます。機種によっては、画面の端からのスワイプ（戻る・ホーム・通知欄）が効くことがあります。電源ボタンで画面を消すと、動画によっては止まります。</string>
     <string name="footer">ずっと無料 · 広告なし · ログインなし · 通信なし</string>
-    <string name="overlay_hint">ここをすばやく4回タップで解除</string>
+    <string name="overlay_hint">すばやく4回タップで解除</string>
     <string name="tile_label">ブラック画面</string>
     <string name="tile_on">オン</string>
     <string name="tile_off">オフ</string>
@@ -39,7 +39,7 @@
     <string name="notif_idle_title">ブラック画面の準備ができています</string>
     <string name="notif_idle_text">「黒くする」で画面を覆います。動画はそのまま続きます。</string>
     <string name="notif_active_title">画面を黒くしています</string>
-    <string name="notif_active_text">同じ場所をすばやく4回タップ、または「解除」を押してください。</string>
+    <string name="notif_active_text">画面をすばやく4回タップ、または「解除」を押してください。</string>
     <string name="action_blackout">黒くする</string>
     <string name="action_unlock">解除</string>
 </resources>
