@@ -93,10 +93,14 @@ class MainActivity : Activity() {
             col.addView(section(s(R.string.setup_title)))
             if (!canDraw) {
                 col.addView(card(s(R.string.perm_overlay_title), s(R.string.perm_overlay_why), s(R.string.allow)) {
-                    startActivity(
-                        Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")),
-                    )
+                    Prefs.setOverlayAsked(this, true)
+                    openSettings(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
                 })
+                // Android 13+ greys out this switch for sideloaded apps ("restricted setting").
+                // Once the user has tried and come back without it, show the one-time unlock steps.
+                if (Build.VERSION.SDK_INT >= 33 && Prefs.overlayAsked(this)) {
+                    col.addView(restrictedHelp())
+                }
             }
             if (needNotif) {
                 col.addView(card(s(R.string.perm_notif_title), s(R.string.perm_notif_why), s(R.string.allow)) {
@@ -201,6 +205,39 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun openSettings(intent: Intent) {
+        try {
+            startActivity(intent)
+        } catch (_: Exception) {
+            // Some phones lack the per-app screen; fall back to App info, then to Settings.
+            try {
+                startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+            } catch (_: Exception) {
+                startActivity(Intent(Settings.ACTION_SETTINGS))
+            }
+        }
+    }
+
+    /** Short "Allow restricted settings" walkthrough with a button straight to App info. */
+    private fun restrictedHelp(): View {
+        val box = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = rounded(0xFF1E1A0E.toInt(), 14f, WARN)
+            setPadding(dp(16f), dp(14f), dp(16f), dp(14f))
+        }
+        box.addView(text(s(R.string.restricted_title), 16f, WARN, bold = true))
+        box.addView(text(s(R.string.restricted_body), 14f, LIGHT).apply { setPadding(0, dp(6f), 0, dp(10f)) })
+        box.addView(outlineButton(s(R.string.open_app_info)) {
+            openSettings(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+        })
+        box.addView(text(s(R.string.restricted_note), 13f, GREY).apply { setPadding(0, dp(10f), 0, 0) })
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, 0, 0, dp(10f))
+            addView(box)
+        }
+    }
+
     // ---- tiny view helpers ----
 
     private fun text(t: String, sp: Float, color: Int, bold: Boolean = false) = TextView(this).apply {
@@ -296,5 +333,6 @@ class MainActivity : Activity() {
         const val ACCENT = 0xFF5B8DEF.toInt()
         const val GREY = 0xFF9A9A9A.toInt()
         const val LIGHT = 0xFFDDDDDD.toInt()
+        const val WARN = 0xFFFFC857.toInt()
     }
 }

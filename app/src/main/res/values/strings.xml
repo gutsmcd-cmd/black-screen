@@ -7,6 +7,10 @@
     <string name="perm_overlay_why">Needed to lay the black cover on top of YouTube or any other app.</string>
     <string name="perm_notif_title">2. Notifications</string>
     <string name="perm_notif_why">Shows the Unlock and Black out buttons in your notification shade.</string>
+    <string name="restricted_title">Switch greyed out, or “restricted setting”?</string>
+    <string name="restricted_body">Android blocks this for apps installed outside the Play Store. One-time fix:\n1. Tap Open App info below.\n2. Tap ⋮ (top right) → Allow restricted settings.\n3. Confirm with your PIN or fingerprint.\n4. Come back here and tap Allow again.</string>
+    <string name="open_app_info">Open App info</string>
+    <string name="restricted_note">No “Allow restricted settings” in the ⋮ menu? Tap Allow above once more, then check again. On some phones it only appears after one blocked try.</string>
     <string name="allow">Allow</string>
     <string name="start_title">Black out</string>
     <string name="blackout_button">Black out in 3 seconds</string>

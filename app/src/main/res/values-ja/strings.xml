@@ -7,6 +7,10 @@
     <string name="perm_overlay_why">YouTube などのアプリの上に黒いカバーを重ねるために必要です。</string>
     <string name="perm_notif_title">2. 通知</string>
     <string name="perm_notif_why">通知欄に「解除」と「黒くする」ボタンを表示します。</string>
+    <string name="restricted_title">スイッチが灰色、または「制限付き設定」と出たら</string>
+    <string name="restricted_body">Play ストア以外から入れたアプリは、Android がこの設定を制限します。最初の1回だけ：\n1. 下の「アプリ情報を開く」を押す\n2. 右上の ⋮ →「制限付き設定を許可」\n3. PIN や指紋で確認\n4. ここに戻り、もう一度「許可する」を押す</string>
+    <string name="open_app_info">アプリ情報を開く</string>
+    <string name="restricted_note">⋮ に「制限付き設定を許可」がないときは、上の「許可する」をもう一度押してから確認してください。機種によっては、一度ブロックされた後にだけ表示されます。</string>
     <string name="allow">許可する</string>
     <string name="start_title">黒くする</string>
     <string name="blackout_button">3秒後に黒くする</string>

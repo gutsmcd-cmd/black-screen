@@ -21,6 +21,11 @@ English and 日本語 (switch inside the app).
 3. Open **Black Screen** and allow the two permissions it asks for:
    - **Display over other apps** – needed to draw the black cover over other apps.
    - **Notifications** (Android 13+) – shows the Unlock / Black out buttons.
+   - **If the switch is greyed out / "restricted setting"** (Android 13+, because the app was
+     not installed from the Play Store): open **App info** (the app shows a button for it) →
+     tap **⋮** (top right) → **Allow restricted settings** → confirm with your PIN or
+     fingerprint → go back and tap **Allow** again. On some phones that menu item only
+     appears after you have been blocked once. One-time only.
 4. Tap **Add the Quick Settings tile** (Android 13+), or add it by hand:
    pull down Quick Settings → pencil/edit → drag in "Black Screen".
 
@@ -85,6 +90,12 @@ keyPassword=...
 ```
 
 Without that file `assembleRelease` produces an unsigned APK; `assembleDebug` always works.
+
+## Changelog
+
+- **1.0.1** – First-run screen explains Android 13+ "restricted settings" (greyed-out
+  "Display over other apps" switch for sideloaded apps) with an **Open App info** button.
+- **1.0.0** – First release.
 
 ## License
 

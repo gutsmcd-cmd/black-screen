@@ -18,8 +18,8 @@ android {
         applicationId = "io.github.gutsmcd.blackscreen"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.1"
     }
 
     signingConfigs {
